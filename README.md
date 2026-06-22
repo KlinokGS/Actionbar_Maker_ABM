@@ -1,11 +1,11 @@
 # EN: Actionbar Maker — Making custom actionbars
 ## commands
 
-- `/abm` — opens actionbar manager.
-- `/abm create "название"` — open actionbar editor
-- `/abm delete "название"` — delete actionbar from world folder
-- `/abm play "название" @a` — play actionbar with editor settings
-- `/abm play "название" @a <fadeIn> <stay> <fadeOut>` — play actionbar with custom settings
+- `/abm` — open actionbar manager.
+- `/abm create "name"` — open actionbar editor
+- `/abm delete "name"` — delete actionbar from world folder
+- `/abm play "name" @a` — play actionbar with editor settings
+- `/abm play "name" @a <fadeIn> <stay> <fadeOut>` — play actionbar with custom settings
 
 Example:
 
@@ -32,7 +32,7 @@ Example:
 - Styles by fragments: bold, italic, подчёркивание, зачёркивание, obfuscated.
 - Import and save templates.
 - PNG images (heads) from `config/abm/heads`.
-- Client overlay draws on higher GUI (chat can't block it), and clear vanilla title actionbar `/title ... actionbar` to escape conflicts.
+- Client overlay draws on higher GUI (chat can't block it), and clear vanilla `/title ... actionbar` to escape conflicts.
 
 # RU: Actionbar Maker — Создание кастомных экшнбаров
 
