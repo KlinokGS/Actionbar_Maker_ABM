@@ -1,6 +1,40 @@
-# Actionbar Maker — базовая реализация
+# EN: Actionbar Maker — Making custom actionbars
+## commands
 
-Мод: Minecraft 1.20.1 + Forge 47.4.20.
+- `/abm` — opens actionbar manager.
+- `/abm create "название"` — open actionbar editor
+- `/abm delete "название"` — delete actionbar from world folder
+- `/abm play "название" @a` — play actionbar with editor settings
+- `/abm play "название" @a <fadeIn> <stay> <fadeOut>` — play actionbar with custom settings
+
+Example:
+
+```mcfunction
+/abm play hello @a 5 40 10
+```
+
+## Where files are stored
+
+- Actionbars in world: `<your world folder>/abm/actionbars/*.json`
+- Templates: `config/abm/templates/*.json`
+- PNG images (heads): `config/abm/heads/*.png`
+
+## What's done
+
+- GUI-manager `/abm`.
+- GUI-editor `/abm create "name"`.
+- Saving actionbars in worlds folder
+- Delete with GUI and `/abm delete`.
+- Play with `/abm play`.
+- Settings fadeIn/stay/fadeOut.
+- Background.
+- Colors for fragments.
+- Styles by fragments: bold, italic, подчёркивание, зачёркивание, obfuscated.
+- Import and save templates.
+- PNG images (heads) from `config/abm/heads`.
+- Client overlay draws on higher GUI (chat can't block it), and clear vanilla title actionbar `/title ... actionbar` to escape conflicts.
+
+# RU: Actionbar Maker — Создание кастомных экшнбаров
 
 ## Команды
 
@@ -20,16 +54,7 @@
 
 - Actionbar'ы мира: `<папка мира>/abm/actionbars/*.json`
 - Шаблоны: `config/abm/templates/*.json`
-- PNG-головы: `config/abm/heads/*.png`
-
-## Как сделано выделение участка текста
-
-Редактор разбивает строку на фрагменты. Каждый фрагмент — это отдельный участок текста со своим цветом и стилем. Например:
-
-- фрагмент 1: `[Игрок] `, цвет жёлтый;
-- фрагмент 2: `Привет!`, цвет белый.
-
-В результате на экране это будет выглядеть как единый actionbar, но стили применяются по частям.
+- PNG картинки (головы): `config/abm/heads/*.png`
 
 ## Что уже реализовано
 
