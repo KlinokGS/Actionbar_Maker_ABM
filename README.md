@@ -32,7 +32,7 @@ Example:
 - Settings fadeIn/stay/fadeOut.
 - Background.
 - Colors for fragments.
-- Styles by fragments: bold, italic, подчёркивание, зачёркивание, obfuscated.
+- Styles by fragments: bold, italic, underline, strikethrough, obfuscated.
 - Import and save templates.
 - PNG images (heads) from `config/abm/heads`.
 - Client overlay draws on higher GUI (chat can't block it), and clear vanilla `/title ... actionbar` to escape conflicts.
@@ -69,7 +69,7 @@ Example:
 - Настройки fadeIn/stay/fadeOut.
 - Полупрозрачный фон.
 - Цвета по фрагментам.
-- Стили по фрагментам: жирный, курсив, подчёркивание, зачёркивание, obfuscated.
+- Стили по фрагментам: жирный, курсив, подчёркивание, зачёркивание, скрытый.
 - Импорт шаблона и сохранение шаблона.
 - PNG-головы из `config/abm/heads`.
-- Клиентский overlay рисуется выше обычного GUI, а во время показа ABM очищает vanilla `/title ... actionbar`, чтобы он не перебивал кастомный actionbar.
+- Клиентский overlay рисуется выше обычного GUI, а во время показа ABM очищает ванильный `/title ... actionbar`, чтобы он не перебивал кастомный actionbar.
