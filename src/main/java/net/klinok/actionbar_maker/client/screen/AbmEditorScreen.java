@@ -32,6 +32,7 @@ public class AbmEditorScreen extends AbmCompactScreen {
     private static final int SMALL_GAP = 4;
     private static final int MEDIUM_GAP = 10;
     private static final int ROW_STEP = ROW_HEIGHT + SMALL_GAP;
+    private static final int GROUP_GAP = 14;
     private static final ResourceLocation LOGO_ICON = new ResourceLocation("actionbar_maker", "textures/logo_small.png");
 
     private ActionbarDefinition definition;
@@ -421,7 +422,7 @@ public class AbmEditorScreen extends AbmCompactScreen {
 
         drawTimingLabels(graphics, left, panelWidth, getDurationLabelY());
 
-        int fragmentHelpY = getRowsTopY() - 14;
+        int fragmentHelpY = getRowsTopY() - GROUP_GAP;
         Component help = AbmText.component("editor.fragments_help");
         graphics.drawString(this.font, help, left, fragmentHelpY, 0xAAAAAA, false);
 
@@ -433,13 +434,10 @@ public class AbmEditorScreen extends AbmCompactScreen {
             graphics.drawString(this.font, counter, counterRight - this.font.width(counter), fragmentHelpY, 0xAAAAAA, false);
         }
 
-        int bottomHelpY = getBottomButtonsY() - 14;
-        if (bottomHelpY > fragmentHelpY + 14) {
+        int bottomHelpY = getBottomButtonsY() - GROUP_GAP;
+        if (bottomHelpY > fragmentHelpY + GROUP_GAP) {
             graphics.drawString(this.font, AbmText.component("editor.style_help"), left, bottomHelpY, 0x777777, false);
-        }
-
-        if (panelWidth < MAX_PANEL_WIDTH && getBottomButtonsY() > fragmentHelpY + 28) {
-            graphics.drawString(this.font, AbmText.component("editor.compact_notice"), left, getBottomButtonsY() - 26, 0x666666, false);
+            graphics.drawString(this.font, AbmText.component("editor.placeholders_help"), left, bottomHelpY - GROUP_GAP, 0x666666, false);
         }
 
         syncFromFieldsLight();
@@ -478,26 +476,25 @@ public class AbmEditorScreen extends AbmCompactScreen {
 
     private int[] getTimingLayout(int left, int panelWidth) {
         int labelGap = 5;
-        int groupGap = 14;
         int fadeLabelW = this.font.width(AbmText.string("label.fade_in"));
         int stayLabelW = this.font.width(AbmText.string("label.stay"));
         int fadeOutLabelW = this.font.width(AbmText.string("label.fade_out"));
         int yLabelW = this.font.width(AbmText.string("label.y"));
-        int total = fadeLabelW + labelGap + TIMING_FIELD_WIDTH + groupGap
-                + stayLabelW + labelGap + TIMING_FIELD_WIDTH + groupGap
-                + fadeOutLabelW + labelGap + TIMING_FIELD_WIDTH + groupGap
+        int total = fadeLabelW + labelGap + TIMING_FIELD_WIDTH + GROUP_GAP
+                + stayLabelW + labelGap + TIMING_FIELD_WIDTH + GROUP_GAP
+                + fadeOutLabelW + labelGap + TIMING_FIELD_WIDTH + GROUP_GAP
                 + yLabelW + labelGap + Y_OFFSET_FIELD_WIDTH + 5 + RESET_Y_BUTTON_WIDTH;
         int x = left + Math.max(0, (panelWidth - total) / 2);
         int[] layout = new int[9];
         layout[0] = x;
         layout[1] = x + fadeLabelW + labelGap;
-        x += fadeLabelW + labelGap + TIMING_FIELD_WIDTH + groupGap;
+        x += fadeLabelW + labelGap + TIMING_FIELD_WIDTH + GROUP_GAP;
         layout[2] = x;
         layout[3] = x + stayLabelW + labelGap;
-        x += stayLabelW + labelGap + TIMING_FIELD_WIDTH + groupGap;
+        x += stayLabelW + labelGap + TIMING_FIELD_WIDTH + GROUP_GAP;
         layout[4] = x;
         layout[5] = x + fadeOutLabelW + labelGap;
-        x += fadeOutLabelW + labelGap + TIMING_FIELD_WIDTH + groupGap;
+        x += fadeOutLabelW + labelGap + TIMING_FIELD_WIDTH + GROUP_GAP;
         layout[6] = x;
         layout[7] = x + yLabelW + labelGap;
         layout[8] = layout[7] + Y_OFFSET_FIELD_WIDTH + 5;
@@ -507,10 +504,9 @@ public class AbmEditorScreen extends AbmCompactScreen {
 
     private int getMinimumSingleTimingWidth() {
         int labelGap = 5;
-        int groupGap = 14;
-        return this.font.width(AbmText.string("label.fade_in")) + labelGap + TIMING_FIELD_WIDTH + groupGap
-                + this.font.width(AbmText.string("label.stay")) + labelGap + TIMING_FIELD_WIDTH + groupGap
-                + this.font.width(AbmText.string("label.fade_out")) + labelGap + TIMING_FIELD_WIDTH + groupGap
+        return this.font.width(AbmText.string("label.fade_in")) + labelGap + TIMING_FIELD_WIDTH + GROUP_GAP
+                + this.font.width(AbmText.string("label.stay")) + labelGap + TIMING_FIELD_WIDTH + GROUP_GAP
+                + this.font.width(AbmText.string("label.fade_out")) + labelGap + TIMING_FIELD_WIDTH + GROUP_GAP
                 + this.font.width(AbmText.string("label.y")) + labelGap + Y_OFFSET_FIELD_WIDTH + 5 + RESET_Y_BUTTON_WIDTH;
     }
 
@@ -538,8 +534,9 @@ public class AbmEditorScreen extends AbmCompactScreen {
         refresh();
     }
 
+    // fragments start height
     private int getRowsTopY() {
-        return getDurationLabelY() + (useSingleTimingRow() ? 36 : 60);
+        return getDurationLabelY() + (useSingleTimingRow() ? 45 : 60);
     }
 
     private int getDurationLabelY() {
@@ -556,7 +553,7 @@ public class AbmEditorScreen extends AbmCompactScreen {
 
     private int getVisibleRowCount() {
         int available = Math.max(ROW_HEIGHT, getBottomButtonsY() - getRowsTopY() - 8);
-        return Math.max(1, Math.min(12, available / ROW_HEIGHT));
+        return Math.max(1, Math.min(9, available / ROW_HEIGHT));
     }
 
     private int getMaxFragmentScroll() {
@@ -568,7 +565,7 @@ public class AbmEditorScreen extends AbmCompactScreen {
     }
 
     private int getBottomButtonsY() {
-        return abmHeight() < 230 ? abmHeight() - 74 : abmHeight() - 86;
+        return abmHeight() < 230 ? abmHeight() - 45 : abmHeight() - 70;
     }
 
     private int getPanelWidth() {

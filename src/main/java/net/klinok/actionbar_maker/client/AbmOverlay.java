@@ -110,22 +110,25 @@ public final class AbmOverlay {
         graphics.pose().translate(0.0F, 0.0F, 1000.0F);
         RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
+
+        // Replace placeholders in elements for the current player
+        ActionbarDefinition resolved = resolvePlaceholders(definition);
         int textWidth = 0;
-        for (ActionbarElement element : definition.elements) {
+        for (ActionbarElement element : resolved.elements) {
             textWidth += font.width(element.toComponent());
         }
 
-        boolean hasHead = definition.head != null && !definition.head.isBlank() && HeadTextureCache.get(definition.head) != null;
+        boolean hasHead = resolved.head != null && !resolved.head.isBlank() && HeadTextureCache.get(resolved.head) != null;
         int headSize = hasHead ? 16 : 0;
         int gap = hasHead && textWidth > 0 ? 4 : 0;
         int contentWidth = headSize + gap + textWidth;
         int contentHeight = Math.max(headSize, font.lineHeight);
 
         int contentLeft = centerX - contentWidth / 2;
-        int textTop = topY + (contentHeight - font.lineHeight) / 2 + definition.textYOffset;
+        int textTop = topY + (contentHeight - font.lineHeight) / 2 + resolved.textYOffset;
         int headTop = topY + (contentHeight - headSize) / 2;
 
-        if (definition.background) {
+        if (resolved.background) {
             int bgAlpha = Math.max(0, Math.min(180, (int) (120 * alpha)));
             int bgColor = (bgAlpha << 24);
             int padX = 4;
@@ -135,7 +138,7 @@ public final class AbmOverlay {
 
         int drawX = contentLeft;
         if (hasHead) {
-            ResourceLocation texture = HeadTextureCache.get(definition.head);
+            ResourceLocation texture = HeadTextureCache.get(resolved.head);
             if (texture != null) {
                 RenderSystem.enableBlend();
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
@@ -146,13 +149,25 @@ public final class AbmOverlay {
         }
 
         int textAlpha = Math.max(0, Math.min(255, (int) (255 * alpha)));
-        for (ActionbarElement element : definition.elements) {
+        for (ActionbarElement element : resolved.elements) {
             int color = (textAlpha << 24) | (element.color & 0xFFFFFF);
             graphics.drawString(font, element.toComponent(), drawX, textTop, color, false);
             drawX += font.width(element.toComponent());
         }
         RenderSystem.enableDepthTest();
         graphics.pose().popPose();
+    }
+
+    /**
+     * Resolves placeholders in the actionbar definition for the current player.
+     * Creates a copy of the definition with placeholder values substituted.
+     */
+    private static ActionbarDefinition resolvePlaceholders(ActionbarDefinition definition) {
+        ActionbarDefinition copy = definition.copy();
+        for (ActionbarElement element : copy.elements) {
+            element.text = AbmPlaceholders.replace(element.text);
+        }
+        return copy;
     }
 
     private static int getVanillaActionbarY(int screenHeight) {

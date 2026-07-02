@@ -51,8 +51,8 @@
   "actionbar_maker.template.empty": "No templates found",
   "actionbar_maker.template.empty_hint": "Save a template in the editor or add .json files to config/abm/templates",
   "actionbar_maker.editor.fragments_help": "Fragments: text + color/style by row",
-  "actionbar_maker.editor.style_help": "B/I/U/S/? — styles, Y: minus = up, plus = down, mouse wheel scrolls fragments",
-  "actionbar_maker.editor.compact_notice": "Interface is compacted for the current GUI Scale",
+  "actionbar_maker.editor.style_help": "B/I/U/S/? — styles, Y: text position, mouse wheel scrolls fragments",
+  "actionbar_maker.editor.placeholders_help": "Placeholders: %player%, %health%",
   "actionbar_maker.message.png_cache_reloaded": "ABM: PNG heads will be reloaded from disk.",
   "actionbar_maker.command.open_manager": "ABM: opening manager",
   "actionbar_maker.command.open_editor": "ABM: opening actionbar for: %s",
@@ -66,7 +66,7 @@
   "actionbar_maker.command.player_only": "ABM: GUI can only be opened by a player.",
   "actionbar_maker.default.fragment_text": "text",
   "actionbar_maker.screen.rich_text.title": "ABM: text with & codes",
-  "actionbar_maker.button.rich_text": "Text",
+  "actionbar_maker.button.rich_text": "Text editor",
   "actionbar_maker.button.apply_back": "Apply",
   "actionbar_maker.button.reset_rich_text": "Remove codes",
   "actionbar_maker.field.rich_text": "Actionbar text",
@@ -104,5 +104,7 @@
   "actionbar_maker.color.short.red": "Red",
   "actionbar_maker.color.short.light_purple": "L.Purp",
   "actionbar_maker.color.short.yellow": "Yellow",
-  "actionbar_maker.color.short.white": "White"
+  "actionbar_maker.color.short.white": "White",
+  "actionbar_maker.placeholder.player": "%player% — player's username",
+  "actionbar_maker.placeholder.health": "%health% — player's health in hearts"
 }

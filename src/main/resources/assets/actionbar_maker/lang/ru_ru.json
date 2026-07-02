@@ -51,8 +51,8 @@
   "actionbar_maker.template.empty": "Шаблоны не найдены",
   "actionbar_maker.template.empty_hint": "Сохраните шаблон через редактор или добавьте .json в config/abm/templates",
   "actionbar_maker.editor.fragments_help": "Фрагменты: текст + цвет/стиль по строкам",
-  "actionbar_maker.editor.style_help": "B/I/U/S/? — стили, Y: минус = выше, плюс = ниже, колесо листает фрагменты",
-  "actionbar_maker.editor.compact_notice": "Интерфейс адаптирован под GUI Scale",
+  "actionbar_maker.editor.style_help": "B/I/U/S/? — стили, Y: позиция текста, колесо листает фрагменты",
+  "actionbar_maker.editor.placeholders_help": "Плейсхолдеры: %player%, %health%",
   "actionbar_maker.message.png_cache_reloaded": "ABM: PNG-головы будут перечитаны с диска.",
   "actionbar_maker.command.open_manager": "ABM: открываем менеджер",
   "actionbar_maker.command.open_editor": "ABM: открываем редактор элемента: %s",
@@ -66,7 +66,7 @@
   "actionbar_maker.command.player_only": "ABM: GUI можно открыть только игроком.",
   "actionbar_maker.default.fragment_text": "текст",
   "actionbar_maker.screen.rich_text.title": "ABM: текст с &-кодами",
-  "actionbar_maker.button.rich_text": "Текст",
+  "actionbar_maker.button.rich_text": "Редактор текста",
   "actionbar_maker.button.apply_back": "Применить",
   "actionbar_maker.button.reset_rich_text": "Убрать коды",
   "actionbar_maker.field.rich_text": "Текст экшнбара",
@@ -104,5 +104,7 @@
   "actionbar_maker.color.short.red": "Красный",
   "actionbar_maker.color.short.light_purple": "Св.фиол",
   "actionbar_maker.color.short.yellow": "Жёлтый",
-  "actionbar_maker.color.short.white": "Белый"
+  "actionbar_maker.color.short.white": "Белый",
+  "actionbar_maker.placeholder.player": "%player% — ник игрока",
+  "actionbar_maker.placeholder.health": "%health% — здоровье игрока в сердцах"
 }
