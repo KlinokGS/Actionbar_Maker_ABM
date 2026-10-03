@@ -1,0 +1,20 @@
+{
+  "name": "Test",
+  "background": true,
+  "head": "RaZFleeX_Head.png",
+  "defaultFadeIn": 5,
+  "defaultStay": 40,
+  "defaultFadeOut": 10,
+  "textYOffset": 2,
+  "elements": [
+    {
+      "text": "[klinokGS] А как вам такое?",
+      "color": 16777215,
+      "bold": false,
+      "italic": false,
+      "underlined": false,
+      "strikethrough": false,
+      "obfuscated": false
+    }
+  ]
+}

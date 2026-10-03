@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class AbmTemplateSelectScreen extends AbmCompactScreen {
-    private static final int MAX_PANEL_WIDTH = 620;
+    private static final int MAX_PANEL_WIDTH = 400;
     private static final int MIN_SIDE_MARGIN = 16;
     private static final int ROW_HEIGHT = 24;
     private static final int Y_BASE = 54;
@@ -34,7 +34,6 @@ public class AbmTemplateSelectScreen extends AbmCompactScreen {
     @Override
     protected void init() {
         prepareCompactLayout();
-        reloadTemplates();
         clampPage();
 
         int left = getPanelLeft();
@@ -52,33 +51,44 @@ public class AbmTemplateSelectScreen extends AbmCompactScreen {
 
         int bottomY = getBottomButtonsY();
         int gap = 8;
-        int buttonW = (panelWidth - gap * 3) / 4;
+        int navW = 24;
+        int navInnerGap = 4;
+        int navGroupW = navW * 2 + navInnerGap;
+
+        int sideW = (panelWidth - navGroupW - gap * 2) / 2;
+
+        int centerX = left + panelWidth / 2;
+        int navStartX = centerX - navGroupW / 2;
+
+        // Refresh
         addRenderableWidget(Button.builder(AbmText.component("button.refresh"), button -> {
             reloadTemplates();
             refresh();
-        }).bounds(left, bottomY, buttonW, 20).build());
+        }).bounds(left, bottomY, sideW, 20).build());
 
-        addRenderableWidget(Button.builder(Component.literal("<"), button -> {
+        // Back
+        addRenderableWidget(Button.builder(AbmText.component("button.back"), button ->
+                        Minecraft.getInstance().setScreen(parent))
+                .bounds(left + panelWidth - sideW, bottomY, sideW, 20).build());
+
+        // < >
+        Button prev = Button.builder(Component.literal("<"), button -> {
             page = Math.max(0, page - 1);
             refresh();
-        }).bounds(left + buttonW + gap, bottomY, buttonW, 20).build());
+        }).bounds(navStartX, bottomY, navW, 20).build();
+        prev.active = page > 0;
+        addRenderableWidget(prev);
 
-        addRenderableWidget(Button.builder(Component.literal(">"), button -> {
+        Button next = Button.builder(Component.literal(">"), button -> {
             page = Math.min(getMaxPage(), page + 1);
             refresh();
-        }).bounds(left + (buttonW + gap) * 2, bottomY, buttonW, 20).build());
-
-        addRenderableWidget(Button.builder(AbmText.component("button.back"), button -> Minecraft.getInstance().setScreen(parent))
-                .bounds(left + (buttonW + gap) * 3, bottomY, panelWidth - (buttonW + gap) * 3, 20).build());
+        }).bounds(navStartX + navW + navInnerGap, bottomY, navW, 20).build();
+        next.active = page < getMaxPage();
+        addRenderableWidget(next);
     }
 
     private void reloadTemplates() {
         Map<String, ActionbarDefinition> merged = new LinkedHashMap<>();
-        if (parent != null && parent.getTemplates() != null) {
-            for (ActionbarDefinition template : parent.getTemplates()) {
-                putTemplate(merged, template);
-            }
-        }
         for (ActionbarDefinition template : ClientFileHelper.listLocalTemplates()) {
             putTemplate(merged, template);
         }

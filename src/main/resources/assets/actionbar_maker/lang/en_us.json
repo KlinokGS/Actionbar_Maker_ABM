@@ -52,7 +52,7 @@
   "actionbar_maker.template.empty_hint": "Save a template in the editor or add .json files to config/abm/templates",
   "actionbar_maker.editor.fragments_help": "Fragments: text + color/style by row",
   "actionbar_maker.editor.style_help": "B/I/U/S/? — styles, Y: text position, mouse wheel scrolls fragments",
-  "actionbar_maker.editor.placeholders_help": "Placeholders: %player%, %health%",
+  "actionbar_maker.editor.placeholders_help": "Placeholders: %player%, %health%, %team%",
   "actionbar_maker.message.png_cache_reloaded": "ABM: PNG heads will be reloaded from disk.",
   "actionbar_maker.command.open_manager": "ABM: opening manager",
   "actionbar_maker.command.open_editor": "ABM: opening actionbar for: %s",

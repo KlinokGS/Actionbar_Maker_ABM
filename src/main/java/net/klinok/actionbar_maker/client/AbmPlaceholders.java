@@ -14,6 +14,7 @@ import java.util.function.Function;
  * Supported placeholders:
  * - %player% - player's username
  * - %health% - player's current health (formatted)
+ * - %team% - player's current team
  */
 public final class AbmPlaceholders {
     private static final Map<String, Function<Player, String>> PLACEHOLDERS = new HashMap<>();
@@ -25,6 +26,8 @@ public final class AbmPlaceholders {
             int hearts = Math.round(health);
             return String.valueOf(hearts);
         });
+        PLACEHOLDERS.put("%team%", player ->
+                player.getTeam() != null ? player.getTeam().getName() : "");
     }
 
     private AbmPlaceholders() {
