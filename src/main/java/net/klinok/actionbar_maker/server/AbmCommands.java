@@ -10,6 +10,7 @@ import net.klinok.actionbar_maker.network.AbmNetwork;
 import net.klinok.actionbar_maker.network.S2COpenEditorPacket;
 import net.klinok.actionbar_maker.network.S2COpenManagerPacket;
 import net.klinok.actionbar_maker.network.S2CPlayActionbarPacket;
+import net.klinok.actionbar_maker.client.AbmFormatCodes;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -40,6 +41,110 @@ public final class AbmCommands {
                 .then(Commands.argument("name", StringArgumentType.string())
                         .suggests(ACTIONBAR_SUGGESTIONS)
                         .executes(context -> deleteActionbar(context.getSource(), StringArgumentType.getString(context, "name")))));
+        var makeOffsetY = Commands.argument(
+                        "offsetY",
+                        IntegerArgumentType.integer(-8,8)
+                )
+                .executes(context -> make(
+                        context.getSource(),
+                        StringArgumentType.getString(context, "text"),
+                        EntityArgument.getPlayers(context, "targets"),
+                        IntegerArgumentType.getInteger(context, "fadeIn"),
+                        IntegerArgumentType.getInteger(context, "stay"),
+                        IntegerArgumentType.getInteger(context, "fadeOut"),
+                        StringArgumentType.getString(context, "head"),
+                        IntegerArgumentType.getInteger(context, "offsetY")
+                ));
+
+        var makeHeadArg = Commands.argument(
+                        "head",
+                        StringArgumentType.word()
+                )
+                .executes(context -> make(
+                        context.getSource(),
+                        StringArgumentType.getString(context, "text"),
+                        EntityArgument.getPlayers(context, "targets"),
+                        IntegerArgumentType.getInteger(context, "fadeIn"),
+                        IntegerArgumentType.getInteger(context, "stay"),
+                        IntegerArgumentType.getInteger(context, "fadeOut"),
+                        StringArgumentType.getString(context, "head"),
+                        0
+                )).then(makeOffsetY);
+
+        var makeFadeOutArg = Commands.argument(
+                        "fadeOut",
+                        IntegerArgumentType.integer(0, 200)
+                )
+                .executes(context -> make(
+                        context.getSource(),
+                        StringArgumentType.getString(context, "text"),
+                        EntityArgument.getPlayers(context, "targets"),
+                        IntegerArgumentType.getInteger(context, "fadeIn"),
+                        IntegerArgumentType.getInteger(context, "stay"),
+                        IntegerArgumentType.getInteger(context, "fadeOut"),
+                        "",
+                        0
+                ))
+                .then(makeHeadArg);
+
+        var makeStayArg = Commands.argument(
+                        "stay",
+                        IntegerArgumentType.integer(1, 1200)
+                )
+                .executes(context -> make(
+                        context.getSource(),
+                        StringArgumentType.getString(context, "text"),
+                        EntityArgument.getPlayers(context, "targets"),
+                        IntegerArgumentType.getInteger(context, "fadeIn"),
+                        IntegerArgumentType.getInteger(context, "stay"),
+                        -1,
+                        "",
+                        0
+                ))
+                .then(makeFadeOutArg);
+
+        var makeFadeInArg = Commands.argument(
+                        "fadeIn",
+                        IntegerArgumentType.integer(0, 200)
+                )
+                .executes(context -> make(
+                        context.getSource(),
+                        StringArgumentType.getString(context, "text"),
+                        EntityArgument.getPlayers(context, "targets"),
+                        IntegerArgumentType.getInteger(context, "fadeIn"),
+                        -1,
+                        -1,
+                        "",
+                        0
+                ))
+                .then(makeStayArg);
+
+        var makeTextArg = Commands.argument(
+                        "text",
+                        StringArgumentType.string()
+                )
+                .executes(context -> make(
+                        context.getSource(),
+                        StringArgumentType.getString(context, "text"),
+                        EntityArgument.getPlayers(context, "targets"),
+                        -1,
+                        -1,
+                        -1,
+                        "",
+                        0
+                ))
+                .then(makeFadeInArg);
+
+        var makeTargetsArg = Commands.argument(
+                        "targets",
+                        EntityArgument.players()
+                )
+                .then(makeTextArg);
+
+        root.then(
+                Commands.literal("make")
+                        .then(makeTargetsArg)
+        );
 
         var fadeOutArg = Commands.argument("fadeOut", IntegerArgumentType.integer(0, 200))
                 .executes(context -> play(
@@ -99,6 +204,49 @@ public final class AbmCommands {
             source.sendFailure(Component.translatable("actionbar_maker.command.delete_error", exception.getMessage()));
         }
         return 0;
+    }
+
+    private static int make(
+            CommandSourceStack source,
+            String text,
+            Collection<ServerPlayer> targets,
+            int fadeIn,
+            int stay,
+            int fadeOut,
+            String head,
+            int offsetY
+    ) {
+        if (text == null || text.isBlank() || text.length() > 256) {
+            source.sendFailure(Component.translatable("actionbar_maker.command.length_error"));
+            return 0;
+        }
+
+        ActionbarDefinition definition = ActionbarDefinition.createDefault("command");
+
+        definition.elements = AbmFormatCodes.parse(text);
+        definition.head = head == null ? "" : head;
+        definition.textYOffset = Math.max(offsetY, 0);
+
+        definition.normalize();
+
+        int realFadeIn = fadeIn >= 0 ? fadeIn : definition.defaultFadeIn;
+        int realStay = stay >= 0 ? stay : definition.defaultStay;
+        int realFadeOut = fadeOut >= 0 ? fadeOut : definition.defaultFadeOut;
+
+        for (ServerPlayer target : targets) {
+            AbmNetwork.sendToPlayer(
+                    target,
+                    new S2CPlayActionbarPacket(
+                            definition,
+                            realFadeIn,
+                            realStay,
+                            realFadeOut
+                    )
+            );
+        }
+
+        source.sendSuccess(() -> Component.translatable("actionbar_maker.command.playing", definition.name, targets.size()), true);
+        return targets.size();
     }
 
     private static int play(CommandSourceStack source, String name, Collection<ServerPlayer> targets, int fadeIn, int stay, int fadeOut) {

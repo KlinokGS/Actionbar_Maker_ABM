@@ -64,6 +64,7 @@
   "actionbar_maker.command.save_error": "ABM: ошибка сохранения: %s",
   "actionbar_maker.command.playing": "ABM: проигрывается %s для игроков: %s",
   "actionbar_maker.command.player_only": "ABM: GUI можно открыть только игроком.",
+  "actionbar_maker.command.length_error": "Текст не может быть пустым или огромным",
   "actionbar_maker.default.fragment_text": "текст",
   "actionbar_maker.screen.rich_text.title": "ABM: текст с &-кодами",
   "actionbar_maker.button.rich_text": "Редактор текста",

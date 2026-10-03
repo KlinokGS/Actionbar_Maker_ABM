@@ -64,6 +64,7 @@
   "actionbar_maker.command.save_error": "ABM: save error: %s",
   "actionbar_maker.command.playing": "ABM: playing %s for players: %s",
   "actionbar_maker.command.player_only": "ABM: GUI can only be opened by a player.",
+  "actionbar_maker.command.length_error": "Text cannot be empty or too big",
   "actionbar_maker.default.fragment_text": "text",
   "actionbar_maker.screen.rich_text.title": "ABM: text with & codes",
   "actionbar_maker.button.rich_text": "Text editor",
