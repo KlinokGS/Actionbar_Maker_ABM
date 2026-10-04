@@ -1,0 +1,47 @@
+{
+  "name": "example",
+  "background": true,
+  "head": "logo.png",
+  "defaultFadeIn": 5,
+  "defaultStay": 40,
+  "defaultFadeOut": 10,
+  "textYOffset": 1,
+  "elements": [
+    {
+      "text": "[ExampleBar] ",
+      "color": 16777045,
+      "bold": true,
+      "italic": false,
+      "underlined": false,
+      "strikethrough": false,
+      "obfuscated": false
+    },
+    {
+      "text": "Welcome to ABM, %player%!",
+      "color": 16777215,
+      "bold": false,
+      "italic": false,
+      "underlined": false,
+      "strikethrough": false,
+      "obfuscated": false
+    },
+    {
+      "text": " Your health is ",
+      "color": 16777045,
+      "bold": false,
+      "italic": false,
+      "underlined": false,
+      "strikethrough": false,
+      "obfuscated": false
+    },
+    {
+      "text": "%health%",
+      "color": 16733525,
+      "bold": false,
+      "italic": false,
+      "underlined": true,
+      "strikethrough": false,
+      "obfuscated": false
+    }
+  ]
+}
