@@ -24,11 +24,14 @@ public final class AbmOverlay {
     public static void play(ActionbarDefinition definition, int fadeIn, int stay, int fadeOut) {
         current = definition.copy();
         current.normalize();
+        current = resolvePlaceholders(current);
         fadeInTicks = Math.max(0, fadeIn);
         stayTicks = Math.max(1, stay);
         fadeOutTicks = Math.max(0, fadeOut);
         startedAtMs = System.currentTimeMillis();
         HeadTextureCache.get(current.head);
+        // Keep an immutable snapshot of what was actually shown, including resolved placeholders.
+        AbmHistory.add(current);
     }
 
     public static boolean isActive() {
@@ -79,7 +82,7 @@ public final class AbmOverlay {
         }
         ActionbarDefinition copy = definition.copy();
         copy.normalize();
-        renderActionbar(graphics, copy, centerX, y, alpha);
+        renderActionbar(graphics, copy, centerX, y, alpha, false, true);
     }
 
     private static float getAlpha() {
@@ -100,7 +103,20 @@ public final class AbmOverlay {
         return fadeOutMs <= 0 ? 1.0F : 0.0F;
     }
 
+    public static void renderHistoryEntry(GuiGraphics graphics, ActionbarDefinition definition, int centerX, int topY) {
+        if (definition == null) {
+            return;
+        }
+        ActionbarDefinition copy = definition.copy();
+        copy.normalize();
+        renderActionbar(graphics, copy, centerX, topY, 1.0F, false, false);
+    }
+
     private static void renderActionbar(GuiGraphics graphics, ActionbarDefinition definition, int centerX, int topY, float alpha) {
+        renderActionbar(graphics, definition, centerX, topY, alpha, false, false);
+    }
+
+    private static void renderActionbar(GuiGraphics graphics, ActionbarDefinition definition, int centerX, int topY, float alpha, boolean reserveHeadSlot, boolean resolveText) {
         if (alpha <= MIN_VISIBLE_ALPHA) {
             return;
         }
@@ -112,15 +128,15 @@ public final class AbmOverlay {
         RenderSystem.enableBlend();
 
         // Replace placeholders in elements for the current player
-        ActionbarDefinition resolved = resolvePlaceholders(definition);
+        ActionbarDefinition resolved = resolveText ? resolvePlaceholders(definition) : definition;
         int textWidth = 0;
         for (ActionbarElement element : resolved.elements) {
             textWidth += font.width(element.toComponent());
         }
 
         boolean hasHead = resolved.head != null && !resolved.head.isBlank() && HeadTextureCache.get(resolved.head) != null;
-        int headSize = hasHead ? 16 : 0;
-        int gap = hasHead && textWidth > 0 ? 4 : 0;
+        int headSize = (hasHead || reserveHeadSlot) ? 16 : 0;
+        int gap = (reserveHeadSlot || (hasHead && textWidth > 0)) ? 4 : 0;
         int contentWidth = headSize + gap + textWidth;
         int contentHeight = Math.max(headSize, font.lineHeight);
 
@@ -137,15 +153,17 @@ public final class AbmOverlay {
         }
 
         int drawX = contentLeft;
-        if (hasHead) {
-            ResourceLocation texture = HeadTextureCache.get(resolved.head);
-            if (texture != null) {
-                RenderSystem.enableBlend();
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
-                graphics.blit(texture, drawX, headTop, 0, 0, headSize, headSize, headSize, headSize);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                drawX += headSize + gap;
+        if (headSize > 0) {
+            if (hasHead) {
+                ResourceLocation texture = HeadTextureCache.get(resolved.head);
+                if (texture != null) {
+                    RenderSystem.enableBlend();
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
+                    graphics.blit(texture, drawX, headTop, 0, 0, headSize, headSize, headSize, headSize);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                }
             }
+            drawX += headSize + gap;
         }
 
         int textAlpha = Math.max(0, Math.min(255, (int) (255 * alpha)));

@@ -107,5 +107,10 @@
   "actionbar_maker.color.short.yellow": "Жёлтый",
   "actionbar_maker.color.short.white": "Белый",
   "actionbar_maker.placeholder.player": "%player% — ник игрока",
-  "actionbar_maker.placeholder.health": "%health% — здоровье игрока в сердцах"
+  "actionbar_maker.placeholder.health": "%health% — здоровье игрока в сердцах",
+  "actionbar_maker.screen.history.title": "История экшнбаров",
+  "actionbar_maker.screen.history.empty": "Пока нет выведенных сообщений",
+  "actionbar_maker.screen.history.hint": "Колесо мыши — прокрутка · Esc — закрыть",
+  "key.actionbar_maker.history": "Открыть историю экшнбаров",
+  "key.categories.actionbar_maker": "Actionbar Maker"
 }

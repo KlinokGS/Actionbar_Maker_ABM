@@ -107,5 +107,10 @@
   "actionbar_maker.color.short.yellow": "Yellow",
   "actionbar_maker.color.short.white": "White",
   "actionbar_maker.placeholder.player": "%player% — player's username",
-  "actionbar_maker.placeholder.health": "%health% — player's health in hearts"
+  "actionbar_maker.placeholder.health": "%health% — player's health in hearts",
+  "actionbar_maker.screen.history.title": "Actionbar History",
+  "actionbar_maker.screen.history.empty": "No messages have been displayed yet",
+  "actionbar_maker.screen.history.hint": "Scroll to browse · Esc to close",
+  "key.actionbar_maker.history": "Open actionbar history",
+  "key.categories.actionbar_maker": "Actionbar Maker"
 }
