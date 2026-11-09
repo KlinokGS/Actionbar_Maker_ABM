@@ -3,6 +3,7 @@ package net.klinok.actionbar_maker.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.klinok.actionbar_maker.data.ActionbarDefinition;
 import net.klinok.actionbar_maker.data.ActionbarElement;
+import net.klinok.actionbar_maker.data.ActionbarSequence;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,12 +17,71 @@ public final class AbmOverlay {
     private static int fadeInTicks;
     private static int stayTicks;
     private static int fadeOutTicks;
+    private static ActionbarSequence activeSequence;
+    private static long sequenceStartedAtMs;
+    private static int activeSequenceEntry = -1;
     private static final float MIN_VISIBLE_ALPHA = 0.04F;
 
     private AbmOverlay() {
     }
 
+
+    public static void stop() {
+        current = null;
+        activeSequence = null;
+        activeSequenceEntry = -1;
+    }
+
+    public static void playSequence(ActionbarSequence sequence) {
+        stop();
+        if (sequence == null) return;
+        ActionbarSequence copy = sequence.copy();
+        copy.normalize();
+        if (copy.entries.isEmpty()) return;
+        activeSequence = copy;
+        sequenceStartedAtMs = System.currentTimeMillis();
+        updateSequence();
+    }
+
+    private static void updateSequence() {
+        if (activeSequence == null) return;
+        long elapsedTicks = Math.max(0, (System.currentTimeMillis() - sequenceStartedAtMs) / 50L);
+        long cursor = 0;
+        for (int i = 0; i < activeSequence.entries.size(); i++) {
+            ActionbarSequence.Entry entry = activeSequence.entries.get(i);
+            long start = cursor + entry.pauseBefore;
+            long visibleEnd = start + entry.fadeIn + entry.stay + entry.fadeOut;
+            long end = visibleEnd + entry.pauseAfter;
+            if (elapsedTicks < start) {
+                current = null;
+                activeSequenceEntry = -1;
+                return;
+            }
+            if (elapsedTicks < visibleEnd) {
+                if (activeSequenceEntry != i) {
+                    activeSequenceEntry = i;
+                    current = resolvePlaceholders(entry.definition);
+                    HeadTextureCache.get(current.head);
+                    AbmHistory.add(current);
+                    fadeInTicks = entry.fadeIn;
+                    stayTicks = entry.stay;
+                    fadeOutTicks = entry.fadeOut;
+                    startedAtMs = sequenceStartedAtMs + start * 50L;
+                }
+                return;
+            }
+            if (elapsedTicks < end) {
+                current = null;
+                activeSequenceEntry = -1;
+                return;
+            }
+            cursor = end;
+        }
+        stop();
+    }
+
     public static void play(ActionbarDefinition definition, int fadeIn, int stay, int fadeOut) {
+        stop();
         current = definition.copy();
         current.normalize();
         current = resolvePlaceholders(current);
@@ -35,6 +95,7 @@ public final class AbmOverlay {
     }
 
     public static boolean isActive() {
+        updateSequence();
         if (current == null) {
             return false;
         }

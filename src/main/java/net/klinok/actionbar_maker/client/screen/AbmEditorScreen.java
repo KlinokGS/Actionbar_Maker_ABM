@@ -72,13 +72,17 @@ public class AbmEditorScreen extends AbmCompactScreen {
 
         int labelWidth = this.font.width(AbmText.component("label.name"));
         int nameBoxX = left + labelWidth + 8;
-        int iconSpace = 28;
+        int iconSpace = 72;
         int nameBoxWidth = Math.max(150, panelWidth - (nameBoxX - left) - iconSpace);
 
         nameBox = new EditBox(this.font, nameBoxX, y, nameBoxWidth, 20, AbmText.component("field.name"));
         nameBox.setMaxLength(96);
         nameBox.setValue(definition.name);
         addRenderableWidget(nameBox);
+        addRenderableWidget(Button.builder(AbmText.component("button.sequence"), button -> {
+            syncFromFields();
+            this.minecraft.setScreen(new AbmSequenceEditorScreen(definition.copy(), this));
+        }).bounds(nameBox.getX() + nameBox.getWidth() + 30, y, 42, 20).build());
         y += ROW_STEP;
 
         int gap = 8;
@@ -283,6 +287,11 @@ public class AbmEditorScreen extends AbmCompactScreen {
         ActionbarDefinition saved = definition.copy();
         if (template) {
             rememberTemplate(saved);
+        }
+        if (previous instanceof AbmSequenceEditorScreen sequenceScreen) {
+            sequenceScreen.updateEditedEntry(saved);
+            this.minecraft.setScreen(previous);
+            return;
         }
         AbmNetwork.sendToServer(new C2SSaveActionbarPacket(saved, template));
 
@@ -645,8 +654,16 @@ public class AbmEditorScreen extends AbmCompactScreen {
         init();
     }
 
+    public ActionbarDefinition getDefinitionCopy() {
+        syncFromFields();
+        return definition.copy();
+    }
+
     @Override
     public void onClose() {
+        if (previous instanceof AbmSequenceEditorScreen sequenceScreen) {
+            sequenceScreen.updateEditedEntry(getDefinitionCopy());
+        }
         if (previous != null) {
             this.minecraft.setScreen(previous);
         } else {

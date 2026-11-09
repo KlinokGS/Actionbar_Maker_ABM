@@ -3,6 +3,7 @@ package net.klinok.actionbar_maker.server;
 import net.klinok.actionbar_maker.ActionbarMaker;
 import net.klinok.actionbar_maker.data.AbmJson;
 import net.klinok.actionbar_maker.data.ActionbarDefinition;
+import net.klinok.actionbar_maker.data.ActionbarSequence;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -33,6 +34,7 @@ public final class AbmStorage {
 
     public static void ensureWorldDirectories(MinecraftServer server) {
         createDirectories(getWorldActionbarsDir(server));
+        createDirectories(getWorldSequencesDir(server));
     }
 
     public static Path getConfigAbmDir() {
@@ -45,6 +47,10 @@ public final class AbmStorage {
 
     public static Path getTemplatesDir() {
         return getConfigAbmDir().resolve("templates");
+    }
+
+    public static Path getWorldSequencesDir(MinecraftServer server) {
+        return server.getWorldPath(LevelResource.ROOT).resolve(ABM_DIR).resolve("sequences");
     }
 
     public static Path getWorldActionbarsDir(MinecraftServer server) {
@@ -96,6 +102,53 @@ public final class AbmStorage {
             }
         }
         return false;
+    }
+
+
+    public static List<ActionbarSequence> loadSequences(MinecraftServer server) {
+        ensureWorldDirectories(server);
+        List<ActionbarSequence> result = new ArrayList<>();
+        Path dir = getWorldSequencesDir(server);
+        try (var stream = Files.list(dir)) {
+            stream.filter(path -> Files.isRegularFile(path) && path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".json"))
+                    .sorted(Comparator.comparing(path -> path.getFileName().toString().toLowerCase(Locale.ROOT)))
+                    .forEach(path -> {
+                        try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+                            ActionbarSequence sequence = AbmJson.GSON.fromJson(reader, ActionbarSequence.class);
+                            if (sequence != null) { sequence.normalize(); result.add(sequence); }
+                        } catch (Exception ex) { ActionbarMaker.LOGGER.error("Failed to read ABM sequence {}", path, ex); }
+                    });
+        } catch (IOException ex) { ActionbarMaker.LOGGER.error("Failed to read ABM sequences {}", dir, ex); }
+        return result;
+    }
+
+    public static Optional<ActionbarSequence> loadSequence(MinecraftServer server, String name) {
+        String normalized = normalizeName(name);
+        return loadSequences(server).stream().filter(s -> normalizeName(s.name).equalsIgnoreCase(normalized)).findFirst();
+    }
+
+    public static void saveSequence(MinecraftServer server, ActionbarSequence sequence) throws IOException {
+        ensureWorldDirectories(server);
+        sequence.normalize();
+        if (sequence.entries.isEmpty()) throw new IOException("Sequence must contain at least one actionbar");
+        Path path = getWorldSequencesDir(server).resolve(safeFileName(sequence.name) + ".json");
+        try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            AbmJson.GSON.toJson(sequence, writer);
+        }
+    }
+
+    public static boolean deleteSequence(MinecraftServer server, String name) throws IOException {
+        Optional<ActionbarSequence> loaded = loadSequence(server, name);
+        if (loaded.isEmpty()) return false;
+        Path path = getWorldSequencesDir(server).resolve(safeFileName(loaded.get().name) + ".json");
+        if (Files.exists(path)) { Files.delete(path); return true; }
+        return false;
+    }
+
+    public static List<String> playableNames(MinecraftServer server) {
+        List<String> names = new ArrayList<>(actionbarNames(server));
+        for (ActionbarSequence sequence : loadSequences(server)) names.add(sequence.name);
+        return names;
     }
 
     public static List<String> actionbarNames(MinecraftServer server) {

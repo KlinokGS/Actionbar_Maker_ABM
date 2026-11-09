@@ -8,7 +8,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class AbmNetwork {
-    private static final String PROTOCOL = "1";
+    private static final String PROTOCOL = "2";
     public static SimpleChannel CHANNEL;
     private static int packetId = 0;
 
@@ -44,11 +44,23 @@ public final class AbmNetwork {
                 .consumerMainThread(S2CPlayActionbarPacket::handle)
                 .add();
 
+        CHANNEL.messageBuilder(S2CPlaySequencePacket.class, nextId(), NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(S2CPlaySequencePacket::encode).decoder(S2CPlaySequencePacket::decode)
+                .consumerMainThread(S2CPlaySequencePacket::handle).add();
+
+        CHANNEL.messageBuilder(S2CStopActionbarPacket.class, nextId(), NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(S2CStopActionbarPacket::encode).decoder(S2CStopActionbarPacket::decode)
+                .consumerMainThread(S2CStopActionbarPacket::handle).add();
+
         CHANNEL.messageBuilder(C2SSaveActionbarPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
                 .encoder(C2SSaveActionbarPacket::encode)
                 .decoder(C2SSaveActionbarPacket::decode)
                 .consumerMainThread(C2SSaveActionbarPacket::handle)
                 .add();
+
+        CHANNEL.messageBuilder(C2SSaveSequencePacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(C2SSaveSequencePacket::encode).decoder(C2SSaveSequencePacket::decode)
+                .consumerMainThread(C2SSaveSequencePacket::handle).add();
 
         CHANNEL.messageBuilder(C2SDeleteActionbarPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
                 .encoder(C2SDeleteActionbarPacket::encode)

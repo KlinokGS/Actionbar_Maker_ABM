@@ -42,7 +42,7 @@ public final class AbmClient {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.execute(() -> {
             ClientFileHelper.ensureClientDirectories();
-            minecraft.setScreen(new AbmManagerScreen(actionbars, templates));
+            minecraft.setScreen(new AbmManagerScreen(actionbars, templates, List.of()));
         });
     }
 

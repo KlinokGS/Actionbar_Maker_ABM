@@ -6,10 +6,13 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.klinok.actionbar_maker.data.ActionbarDefinition;
+import net.klinok.actionbar_maker.data.ActionbarSequence;
 import net.klinok.actionbar_maker.network.AbmNetwork;
 import net.klinok.actionbar_maker.network.S2COpenEditorPacket;
 import net.klinok.actionbar_maker.network.S2COpenManagerPacket;
 import net.klinok.actionbar_maker.network.S2CPlayActionbarPacket;
+import net.klinok.actionbar_maker.network.S2CPlaySequencePacket;
+import net.klinok.actionbar_maker.network.S2CStopActionbarPacket;
 import net.klinok.actionbar_maker.client.AbmFormatCodes;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -23,7 +26,7 @@ import java.util.List;
 
 public final class AbmCommands {
     private static final SuggestionProvider<CommandSourceStack> ACTIONBAR_SUGGESTIONS = (context, builder) ->
-            SharedSuggestionProvider.suggest(AbmStorage.actionbarNames(context.getSource().getServer()), builder);
+            SharedSuggestionProvider.suggest(AbmStorage.playableNames(context.getSource().getServer()), builder);
 
     private AbmCommands() {
     }
@@ -165,6 +168,11 @@ public final class AbmCommands {
                 .then(targetsArg);
 
         root.then(Commands.literal("play").then(nameArg));
+
+        root.then(Commands.literal("stop")
+                .executes(context -> stop(context.getSource(), List.of(context.getSource().getPlayerOrException())))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(context -> stop(context.getSource(), EntityArgument.getPlayers(context, "targets")))));
         dispatcher.register(root);
     }
 
@@ -175,7 +183,7 @@ public final class AbmCommands {
         }
         List<ActionbarDefinition> actionbars = AbmStorage.loadActionbars(source.getServer());
         List<ActionbarDefinition> templates = AbmStorage.loadTemplates();
-        AbmNetwork.sendToPlayer(player, new S2COpenManagerPacket(actionbars, templates));
+        AbmNetwork.sendToPlayer(player, new S2COpenManagerPacket(actionbars, templates, AbmStorage.loadSequences(source.getServer())));
         source.sendSuccess(() -> Component.translatable("actionbar_maker.command.open_manager"), false);
         return 1;
     }
@@ -195,6 +203,7 @@ public final class AbmCommands {
     private static int deleteActionbar(CommandSourceStack source, String name) {
         try {
             boolean deleted = AbmStorage.deleteActionbar(source.getServer(), name);
+            if (!deleted) deleted = AbmStorage.deleteSequence(source.getServer(), name);
             if (deleted) {
                 source.sendSuccess(() -> Component.translatable("actionbar_maker.command.deleted", name), true);
                 return 1;
@@ -252,8 +261,17 @@ public final class AbmCommands {
     private static int play(CommandSourceStack source, String name, Collection<ServerPlayer> targets, int fadeIn, int stay, int fadeOut) {
         ActionbarDefinition definition = AbmStorage.loadActionbar(source.getServer(), name).orElse(null);
         if (definition == null) {
-            source.sendFailure(Component.translatable("actionbar_maker.command.not_found", name));
-            return 0;
+            ActionbarSequence sequence = AbmStorage.loadSequence(source.getServer(), name).orElse(null);
+            if (sequence == null) {
+                source.sendFailure(Component.translatable("actionbar_maker.command.not_found", name));
+                return 0;
+            }
+            sequence.normalize();
+            for (ServerPlayer target : targets) {
+                AbmNetwork.sendToPlayer(target, new S2CPlaySequencePacket(sequence));
+            }
+            source.sendSuccess(() -> Component.translatable("actionbar_maker.command.playing", sequence.name, targets.size()), true);
+            return targets.size();
         }
         definition.normalize();
         int realFadeIn = fadeIn >= 0 ? fadeIn : definition.defaultFadeIn;
@@ -264,6 +282,14 @@ public final class AbmCommands {
             AbmNetwork.sendToPlayer(target, new S2CPlayActionbarPacket(definition, realFadeIn, realStay, realFadeOut));
         }
         source.sendSuccess(() -> Component.translatable("actionbar_maker.command.playing", definition.name, targets.size()), true);
+        return targets.size();
+    }
+
+    private static int stop(CommandSourceStack source, Collection<ServerPlayer> targets) {
+        for (ServerPlayer target : targets) {
+            AbmNetwork.sendToPlayer(target, new S2CStopActionbarPacket());
+        }
+        source.sendSuccess(() -> Component.translatable("actionbar_maker.command.stopped", targets.size()), true);
         return targets.size();
     }
 

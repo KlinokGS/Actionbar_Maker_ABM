@@ -32,6 +32,7 @@ public class C2SDeleteActionbarPacket {
             }
             try {
                 boolean deleted = AbmStorage.deleteActionbar(sender.server, packet.name);
+                if (!deleted) deleted = AbmStorage.deleteSequence(sender.server, packet.name);
                 sender.sendSystemMessage((deleted ? Component.translatable("actionbar_maker.command.deleted", packet.name) : Component.translatable("actionbar_maker.command.not_found", packet.name)));
             } catch (Exception exception) {
                 sender.sendSystemMessage(Component.translatable("actionbar_maker.command.delete_error", exception.getMessage()));
