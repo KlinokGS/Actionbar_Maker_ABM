@@ -9,7 +9,8 @@
 - `/abm delete "name"` — delete actionbar from world folder
 - `/abm play "name" @a` — play actionbar with editor settings
 - `/abm play "name" @a <fadeIn> <stay> <fadeOut>` — play actionbar with custom settings
-
+- `/abm make @a` — create fast actionbar with any settings you need
+- `/abm stop @a` — stop playing any actionbar
 Example:
 
 ```mcfunction
@@ -19,6 +20,7 @@ Example:
 ## Where files are stored
 
 - Actionbars in world: `<your world folder>/abm/actionbars/*.json`
+- Actionbar groups in world: `<папка мира>/abm/sequances/*.json`
 - Templates: `config/abm/templates/*.json`
 - PNG images (heads): `config/abm/heads/*.png`
 
@@ -26,7 +28,7 @@ Example:
 
 - GUI-manager `/abm`.
 - GUI-editor `/abm create "name"`.
-- Saving actionbars in worlds folder
+- Saving actionbars and their groups in worlds folder
 - Delete with GUI and `/abm delete`.
 - Play with `/abm play`.
 - Settings fadeIn/stay/fadeOut.
@@ -46,7 +48,8 @@ Example:
 - `/abm delete "название"` — удалить actionbar из папки мира.
 - `/abm play "название" @a` — проиграть actionbar с настройками длительности по умолчанию.
 - `/abm play "название" @a <fadeIn> <stay> <fadeOut>` — проиграть actionbar с длительностями в тиках.
-
+- `/abm make @a` — быстро сделать actionbar с нужными настройками
+- `/abm stop @a` — остановить проигрывание actionbar'а
 Пример:
 
 ```mcfunction
@@ -56,6 +59,7 @@ Example:
 ## Где хранятся файлы
 
 - Actionbar'ы мира: `<папка мира>/abm/actionbars/*.json`
+- Группы Actionbar'ов мира: `<папка мира>/abm/sequances/*.json`
 - Шаблоны: `config/abm/templates/*.json`
 - PNG картинки (головы): `config/abm/heads/*.png`
 
@@ -63,7 +67,7 @@ Example:
 
 - GUI-менеджер `/abm`.
 - GUI-редактор `/abm create "name"`.
-- Сохранение actionbar'ов в папку текущего мира.
+- Сохранение actionbar'ов и их групп в папку текущего мира.
 - Удаление через GUI и `/abm delete`.
 - Проигрывание через `/abm play`.
 - Настройки fadeIn/stay/fadeOut.
