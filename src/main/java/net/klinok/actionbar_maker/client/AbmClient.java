@@ -74,6 +74,7 @@ public final class AbmClient {
             if (!AbmOverlay.isActive()) {
                 return;
             }
+            AbmOverlay.tick();
             if (minecraft.player != null && minecraft.gui != null) {
                 // While custom ABM overlay is alive, wipe vanilla /title actionbar text.
                 minecraft.gui.setOverlayMessage(net.minecraft.network.chat.Component.empty(), false);

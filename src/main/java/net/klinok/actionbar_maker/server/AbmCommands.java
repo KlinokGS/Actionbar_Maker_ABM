@@ -8,6 +8,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.klinok.actionbar_maker.data.ActionbarDefinition;
 import net.klinok.actionbar_maker.data.ActionbarSequence;
 import net.klinok.actionbar_maker.network.AbmNetwork;
+import net.klinok.actionbar_maker.network.S2COpenConfigPacket;
 import net.klinok.actionbar_maker.network.S2COpenEditorPacket;
 import net.klinok.actionbar_maker.network.S2COpenManagerPacket;
 import net.klinok.actionbar_maker.network.S2CPlayActionbarPacket;
@@ -39,6 +40,9 @@ public final class AbmCommands {
         root.then(Commands.literal("create")
                 .then(Commands.argument("name", StringArgumentType.string())
                         .executes(context -> openEditor(context.getSource(), StringArgumentType.getString(context, "name")))));
+
+        root.then(Commands.literal("config")
+                .executes(context -> openConfig(context.getSource())));
 
         root.then(Commands.literal("delete")
                 .then(Commands.argument("name", StringArgumentType.string())
@@ -197,6 +201,16 @@ public final class AbmCommands {
                 .orElseGet(() -> ActionbarDefinition.createDefault(name));
         AbmNetwork.sendToPlayer(player, new S2COpenEditorPacket(definition, AbmStorage.loadTemplates()));
         source.sendSuccess(() -> Component.translatable("actionbar_maker.command.open_editor", definition.name), false);
+        return 1;
+    }
+
+    private static int openConfig(CommandSourceStack source) {
+        ServerPlayer player = requirePlayer(source);
+        if (player == null) {
+            return 0;
+        }
+        AbmNetwork.sendToPlayer(player, new S2COpenConfigPacket());
+        source.sendSuccess(() -> Component.translatable("actionbar_maker.command.open_config"), false);
         return 1;
     }
 

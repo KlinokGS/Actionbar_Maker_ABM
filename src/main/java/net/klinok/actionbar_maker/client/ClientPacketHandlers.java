@@ -1,6 +1,7 @@
 package net.klinok.actionbar_maker.client;
 
 import net.klinok.actionbar_maker.ActionbarMaker;
+import net.klinok.actionbar_maker.client.screen.AbmConfigScreen;
 import net.klinok.actionbar_maker.client.screen.AbmEditorScreen;
 import net.klinok.actionbar_maker.client.screen.AbmManagerScreen;
 import net.klinok.actionbar_maker.data.ActionbarDefinition;
@@ -35,6 +36,13 @@ public final class ClientPacketHandlers {
                     templates == null ? 0 : templates.size());
             ClientFileHelper.ensureClientDirectories();
             minecraft.setScreen(new AbmEditorScreen(definition, templates, null));
+        });
+    }
+
+    public static void openConfig() {
+        Minecraft.getInstance().execute(() -> {
+            ClientFileHelper.ensureClientDirectories();
+            Minecraft.getInstance().setScreen(new AbmConfigScreen(null));
         });
     }
 

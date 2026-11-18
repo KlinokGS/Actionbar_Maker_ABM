@@ -75,8 +75,28 @@ public final class AbmStorage {
     }
 
     public static void saveActionbar(MinecraftServer server, ActionbarDefinition definition) throws IOException {
+        saveActionbar(server, definition, null);
+    }
+
+    /**
+     * Сохраняет экшнбар под новым именем. Если имя изменилось по сравнению с previousName,
+     * старый .json удаляется только после того, как новый файл успешно создан на диске.
+     */
+    public static void saveActionbar(MinecraftServer server, ActionbarDefinition definition, String previousName) throws IOException {
         ensureWorldDirectories(server);
+        definition.normalize();
         saveDefinition(getWorldActionbarsDir(server), definition);
+
+        if (previousName != null && !previousName.isBlank()) {
+            String oldFile = safeFileName(previousName) + ".json";
+            String newFile = safeFileName(definition.name) + ".json";
+            if (!oldFile.equals(newFile)) {
+                Path oldPath = getWorldActionbarsDir(server).resolve(oldFile);
+                if (Files.exists(oldPath)) {
+                    Files.delete(oldPath);
+                }
+            }
+        }
     }
 
     public static void saveTemplate(ActionbarDefinition definition) throws IOException {

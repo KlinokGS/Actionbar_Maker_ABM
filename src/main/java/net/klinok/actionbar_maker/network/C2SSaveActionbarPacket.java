@@ -12,19 +12,22 @@ import java.util.function.Supplier;
 public class C2SSaveActionbarPacket {
     public final ActionbarDefinition definition;
     public final boolean template;
+    public final String previousName;
 
-    public C2SSaveActionbarPacket(ActionbarDefinition definition, boolean template) {
+    public C2SSaveActionbarPacket(ActionbarDefinition definition, boolean template, String previousName) {
         this.definition = definition;
         this.template = template;
+        this.previousName = previousName;
     }
 
     public static void encode(C2SSaveActionbarPacket packet, FriendlyByteBuf buf) {
         ActionbarDefinition.write(buf, packet.definition);
         buf.writeBoolean(packet.template);
+        buf.writeUtf(packet.previousName == null ? "" : packet.previousName, 128);
     }
 
     public static C2SSaveActionbarPacket decode(FriendlyByteBuf buf) {
-        return new C2SSaveActionbarPacket(ActionbarDefinition.read(buf), buf.readBoolean());
+        return new C2SSaveActionbarPacket(ActionbarDefinition.read(buf), buf.readBoolean(), buf.readUtf(128));
     }
 
     public static void handle(C2SSaveActionbarPacket packet, Supplier<NetworkEvent.Context> context) {
@@ -40,7 +43,7 @@ public class C2SSaveActionbarPacket {
                     AbmStorage.saveTemplate(packet.definition);
                     sender.sendSystemMessage(Component.translatable("actionbar_maker.command.template_saved", packet.definition.name));
                 } else {
-                    AbmStorage.saveActionbar(sender.server, packet.definition);
+                    AbmStorage.saveActionbar(sender.server, packet.definition, packet.previousName);
                     sender.sendSystemMessage(Component.translatable("actionbar_maker.command.actionbar_saved", packet.definition.name));
                 }
             } catch (Exception exception) {

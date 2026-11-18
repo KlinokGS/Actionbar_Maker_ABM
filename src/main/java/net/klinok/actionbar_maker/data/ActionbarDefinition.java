@@ -1,6 +1,7 @@
 package net.klinok.actionbar_maker.data;
 
 import net.klinok.actionbar_maker.client.AbmText;
+import net.klinok.actionbar_maker.client.AbmConfig;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.ArrayList;
@@ -24,6 +25,10 @@ public class ActionbarDefinition {
         ActionbarDefinition definition = new ActionbarDefinition();
         definition.name = name == null || name.isBlank() ? "Actionbar_" + UUID.randomUUID().toString().substring(0, 8) : name;
         definition.background = true;
+        // get default settings from config
+        definition.defaultFadeIn = AbmConfig.actionbarDefaultFadeIn();
+        definition.defaultStay = AbmConfig.actionbarDefaultStay();
+        definition.defaultFadeOut = AbmConfig.actionbarDefaultFadeOut();
         definition.elements.add(new ActionbarElement("[Name] ", 0xFFFF55));
         definition.elements.add(new ActionbarElement("Hello!", 0xFFFFFF));
         return definition;

@@ -13,18 +13,23 @@ import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 public final class AbmOverlay {
     private static ActionbarDefinition current;
-    private static long startedAtMs;
+    private static int startedAtTick;
     private static int fadeInTicks;
     private static int stayTicks;
     private static int fadeOutTicks;
     private static ActionbarSequence activeSequence;
-    private static long sequenceStartedAtMs;
+    private static int sequenceStartedAtTick;
     private static int activeSequenceEntry = -1;
+    private static int clientTick = 0;
     private static final float MIN_VISIBLE_ALPHA = 0.04F;
 
     private AbmOverlay() {
     }
 
+    /** Called from the client tick handler to keep a local tick counter. */
+    public static void tick() {
+        clientTick++;
+    }
 
     public static void stop() {
         current = null;
@@ -39,13 +44,14 @@ public final class AbmOverlay {
         copy.normalize();
         if (copy.entries.isEmpty()) return;
         activeSequence = copy;
-        sequenceStartedAtMs = System.currentTimeMillis();
+        sequenceStartedAtTick = clientTick;
         updateSequence();
     }
 
     private static void updateSequence() {
         if (activeSequence == null) return;
-        long elapsedTicks = Math.max(0, (System.currentTimeMillis() - sequenceStartedAtMs) / 50L);
+        Minecraft minecraft = Minecraft.getInstance();
+        int elapsedTicks = Math.max(0, clientTick - sequenceStartedAtTick);
         long cursor = 0;
         for (int i = 0; i < activeSequence.entries.size(); i++) {
             ActionbarSequence.Entry entry = activeSequence.entries.get(i);
@@ -66,7 +72,7 @@ public final class AbmOverlay {
                     fadeInTicks = entry.fadeIn;
                     stayTicks = entry.stay;
                     fadeOutTicks = entry.fadeOut;
-                    startedAtMs = sequenceStartedAtMs + start * 50L;
+                    startedAtTick = sequenceStartedAtTick + (int) start;
                 }
                 return;
             }
@@ -88,7 +94,7 @@ public final class AbmOverlay {
         fadeInTicks = Math.max(0, fadeIn);
         stayTicks = Math.max(1, stay);
         fadeOutTicks = Math.max(0, fadeOut);
-        startedAtMs = System.currentTimeMillis();
+        startedAtTick = clientTick;
         HeadTextureCache.get(current.head);
         // Keep an immutable snapshot of what was actually shown, including resolved placeholders.
         AbmHistory.add(current);
@@ -99,8 +105,8 @@ public final class AbmOverlay {
         if (current == null) {
             return false;
         }
-        long elapsed = System.currentTimeMillis() - startedAtMs;
-        return elapsed < ticksToMs(fadeInTicks + stayTicks + fadeOutTicks);
+        int elapsed = clientTick - startedAtTick;
+        return elapsed < (fadeInTicks + stayTicks + fadeOutTicks);
     }
 
     public static void renderOverlay(ForgeGui gui, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
@@ -147,21 +153,17 @@ public final class AbmOverlay {
     }
 
     private static float getAlpha() {
-        long elapsedMs = System.currentTimeMillis() - startedAtMs;
-        long fadeInMs = ticksToMs(fadeInTicks);
-        long stayMs = ticksToMs(stayTicks);
-        long fadeOutMs = ticksToMs(fadeOutTicks);
-
-        if (fadeInMs > 0 && elapsedMs < fadeInMs) {
-            return clamp(elapsedMs / (float) fadeInMs);
+        int elapsed = clientTick - startedAtTick;
+        if (fadeInTicks > 0 && elapsed < fadeInTicks) {
+            return clamp(elapsed / (float) fadeInTicks);
         }
-        if (elapsedMs < fadeInMs + stayMs) {
+        if (elapsed < fadeInTicks + stayTicks) {
             return 1.0F;
         }
-        if (fadeOutMs > 0 && elapsedMs < fadeInMs + stayMs + fadeOutMs) {
-            return clamp(1.0F - ((elapsedMs - fadeInMs - stayMs) / (float) fadeOutMs));
+        if (fadeOutTicks > 0 && elapsed < fadeInTicks + stayTicks + fadeOutTicks) {
+            return clamp(1.0F - ((elapsed - fadeInTicks - stayTicks) / (float) fadeOutTicks));
         }
-        return fadeOutMs <= 0 ? 1.0F : 0.0F;
+        return fadeOutTicks <= 0 ? 1.0F : 0.0F;
     }
 
     public static void renderHistoryEntry(GuiGraphics graphics, ActionbarDefinition definition, int centerX, int topY) {
@@ -251,10 +253,6 @@ public final class AbmOverlay {
 
     private static int getVanillaActionbarY(int screenHeight) {
         return screenHeight - 68;
-    }
-
-    private static long ticksToMs(int ticks) {
-        return Math.max(0, ticks) * 50L;
     }
 
     private static float clamp(float value) {

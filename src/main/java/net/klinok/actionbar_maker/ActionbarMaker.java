@@ -1,6 +1,7 @@
 package net.klinok.actionbar_maker;
 
 import com.mojang.logging.LogUtils;
+import net.klinok.actionbar_maker.client.AbmConfig;
 import net.klinok.actionbar_maker.network.AbmNetwork;
 import net.klinok.actionbar_maker.server.AbmCommands;
 import net.klinok.actionbar_maker.server.AbmStorage;
@@ -22,7 +23,7 @@ public class ActionbarMaker {
     public ActionbarMaker() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(this::commonSetup);
-
+        AbmConfig.register();
         MinecraftForge.EVENT_BUS.register(this);
     }
 

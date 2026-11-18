@@ -8,6 +8,7 @@ import net.klinok.actionbar_maker.client.ClientFileHelper;
 import net.klinok.actionbar_maker.client.HeadTextureCache;
 import net.klinok.actionbar_maker.data.ActionbarDefinition;
 import net.klinok.actionbar_maker.data.ActionbarElement;
+import net.klinok.actionbar_maker.client.AbmConfig;
 import net.klinok.actionbar_maker.network.AbmNetwork;
 import net.klinok.actionbar_maker.network.C2SSaveActionbarPacket;
 import net.minecraft.client.Minecraft;
@@ -36,6 +37,7 @@ public class AbmEditorScreen extends AbmCompactScreen {
     private static final ResourceLocation LOGO_ICON = new ResourceLocation("actionbar_maker", "textures/logo_small.png");
 
     private ActionbarDefinition definition;
+    private final String originalName;
     private final List<ActionbarDefinition> templates;
     private final Screen previous;
     private final List<EditBox> elementBoxes = new ArrayList<>();
@@ -51,6 +53,7 @@ public class AbmEditorScreen extends AbmCompactScreen {
         super(AbmText.component("screen.editor.title"));
         this.definition = definition == null ? ActionbarDefinition.createDefault("actionbar") : definition.copy();
         this.definition.normalize();
+        this.originalName = this.definition.name;
         this.templates = new ArrayList<>();
         if (templates != null) {
             templates.forEach(template -> this.templates.add(template.copy()));
@@ -68,6 +71,7 @@ public class AbmEditorScreen extends AbmCompactScreen {
 
         int left = getPanelLeft();
         int panelWidth = getPanelWidth();
+
         int y = ROW_HEIGHT + SMALL_GAP;
 
         int labelWidth = this.font.width(AbmText.component("label.name"));
@@ -122,6 +126,14 @@ public class AbmEditorScreen extends AbmCompactScreen {
                 syncFromFields();
                 Minecraft.getInstance().setScreen(new AbmHeadSelectScreen(this));
             }).bounds(left, y, panelWidth, 20).build());
+        }
+
+        y += ROW_STEP;
+        if (AbmConfig.uiShowSettingsButton()) {
+            int settingsW = headW >= 150 ? backgroundW : Math.max(90, panelWidth / 2 - gap / 2);
+            addRenderableWidget(Button.builder(AbmText.component("button.settings"), button -> {
+                Minecraft.getInstance().setScreen(new AbmConfigScreen(this));
+            }).bounds(left, y, settingsW, 20).build());
         }
 
         addTimingControls(left, panelWidth, getDurationLabelY());
@@ -293,7 +305,7 @@ public class AbmEditorScreen extends AbmCompactScreen {
             this.minecraft.setScreen(previous);
             return;
         }
-        AbmNetwork.sendToServer(new C2SSaveActionbarPacket(saved, template));
+        AbmNetwork.sendToServer(new C2SSaveActionbarPacket(saved, template, originalName));
 
         if (previous != null) {
             if (previous instanceof AbmManagerScreen manager) {

@@ -1,5 +1,6 @@
 package net.klinok.actionbar_maker.client.screen;
 
+import net.klinok.actionbar_maker.client.AbmConfig;
 import net.klinok.actionbar_maker.data.ActionbarDefinition;
 import net.klinok.actionbar_maker.data.ActionbarSequence;
 import net.klinok.actionbar_maker.network.AbmNetwork;
@@ -82,6 +83,9 @@ public class AbmSequenceEditorScreen extends AbmCompactScreen {
             sync(); if(sequence.entries.size()<64) {
                 ActionbarSequence.Entry e=new ActionbarSequence.Entry();
                 e.definition=ActionbarDefinition.createDefault("Actionbar_"+(sequence.entries.size()+1));
+                e.pauseBefore=AbmConfig.sequenceDefaultPauseBefore();
+                e.pauseAfter=AbmConfig.sequenceDefaultPauseAfter();
+                e.fadeIn=AbmConfig.sequenceDefaultFadeIn(); e.stay=AbmConfig.sequenceDefaultStay(); e.fadeOut=AbmConfig.sequenceDefaultFadeOut();
                 sequence.entries.add(e); scroll=Math.max(0,sequence.entries.size()-visible); refresh();
             }
         }).bounds(left,bottom,120,20).build());

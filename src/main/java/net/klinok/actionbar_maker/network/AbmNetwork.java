@@ -8,7 +8,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public final class AbmNetwork {
-    private static final String PROTOCOL = "2";
+    private static final String PROTOCOL = "3";
     public static SimpleChannel CHANNEL;
     private static int packetId = 0;
 
@@ -30,6 +30,12 @@ public final class AbmNetwork {
                 .encoder(S2COpenManagerPacket::encode)
                 .decoder(S2COpenManagerPacket::decode)
                 .consumerMainThread(S2COpenManagerPacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(S2COpenConfigPacket.class, nextId(), NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(S2COpenConfigPacket::encode)
+                .decoder(S2COpenConfigPacket::decode)
+                .consumerMainThread(S2COpenConfigPacket::handle)
                 .add();
 
         CHANNEL.messageBuilder(S2COpenEditorPacket.class, nextId(), NetworkDirection.PLAY_TO_CLIENT)
